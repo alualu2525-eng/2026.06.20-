@@ -34,6 +34,7 @@ header{background:linear-gradient(135deg,var(--blue),var(--teal));color:white;pa
 .act-title{font-size:15px;font-weight:700;color:var(--deep);margin-bottom:5px;}
 .act-desc{font-size:13px;color:#555;line-height:1.7;margin-bottom:6px;}
 .act-cost{display:inline-block;background:linear-gradient(135deg,#FFF3E0,#FFE0B2);padding:5px 12px;border-radius:15px;font-size:12px;font-weight:600;color:#E65100;margin-top:4px;}
+.act-note{display:block;background:linear-gradient(135deg,#FFF8E1,#FFF3CD);border-left:3px solid #FFC107;padding:8px 12px;border-radius:8px;font-size:12px;color:#795548;margin-top:8px;line-height:1.6;}
 .map-btn{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--teal),var(--blue));color:white;padding:9px 16px;border-radius:25px;text-decoration:none;font-size:13px;font-weight:600;margin-top:8px;box-shadow:0 3px 10px rgba(0,191,165,.3);}
 .map-btn::before{content:'📍 ';}
 .divider{height:2px;background:linear-gradient(90deg,transparent,var(--sand),transparent);margin:18px 0;}
@@ -64,6 +65,9 @@ header{background:linear-gradient(135deg,var(--blue),var(--teal));color:white;pa
 .nav-item.active .nav-icon{filter:grayscale(0%);transform:scale(1.1);}
 .nav-label{font-size:10px;font-weight:600;color:#666;transition:all .3s;}
 .nav-item.active .nav-label{color:var(--blue);}
+.weekday-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;margin-left:8px;}
+.weekday-ok{background:#E8F5E9;color:#2E7D32;}
+.weekday-warn{background:#FFF3E0;color:#E65100;}
 </style>
 </head>
 <body>
@@ -72,11 +76,8 @@ header{background:linear-gradient(135deg,var(--blue),var(--teal));color:white;pa
   <div class="h-sub">8天7夜親子自由行 | 6/20（六）- 6/27（六）</div>
   <div class="h-mem">小寶軒軒一家 · 姐一家 · 緁翎一家 · 偉哥 · 阿如</div>
 </header>
-
 <div class="page-bar" id="pageBar" style="background:linear-gradient(135deg,rgba(255,107,107,.9),rgba(255,140,66,.9))">📅 每日行程</div>
-
 <div class="container" id="mainContainer"></div>
-
 <div class="bottom-nav">
   <div class="nav-item active" data-page="itinerary"><div class="nav-icon">🗓️</div><div class="nav-label">行程</div></div>
   <div class="nav-item" data-page="budget"><div class="nav-icon">💰</div><div class="nav-label">預算</div></div>
@@ -84,14 +85,14 @@ header{background:linear-gradient(135deg,var(--blue),var(--teal));color:white;pa
   <div class="nav-item" data-page="tips"><div class="nav-icon">⚠️</div><div class="nav-label">注意</div></div>
   <div class="nav-item" data-page="info"><div class="nav-icon">ℹ️</div><div class="nav-label">資訊</div></div>
 </div>
-
 <script>
-const DAYS = {
+const NOTE='📌 建議事先預約／訂位';
+const DAYS={
   1:{date:'6/20（六）',theme:'抵達日 + PARCO CITY購物',acts:[
-    {t:'06:50-09:20',title:'✈️ IT230 台北→那霸',desc:'台北桃園T1起飛，日本時間09:20抵達那霸機場<br>飛行時間：1小時30分'},
-    {t:'09:30-11:30',title:'🚗 機場取車',desc:'入境、提領行李、前往租車櫃台辦理手續<br>建議租：8人座×1 + 5人座×1（或3台5人座）'},
-    {t:'11:30-14:30',title:'🛍️ SAN-A浦添西海岸 PARCO CITY',desc:'📍 浦添市西洲3-1-1（機場→恩納村途中，完全順路！）<br>⏰ 10:00-22:00<br>🅿️ 免費停車約3,800個<br>💡 250間店舖，多日系品牌<br><br>必逛：<br>🎮 3F Namco遊樂場、VR體驗<br>🧸 阿卡將嬰幼童用品<br>🪙 1F超過100台扭蛋機<br>🌊 天台展望台可看海景<br>🛍️ Tokyu Hands、3 Coins<br>💡 退稅：全場累積滿¥5,000可退稅',map:'https://www.google.com/maps/search/?api=1&query=SAN-A+浦添西海岸+PARCO+CITY'},
-    {t:'13:00-14:00',title:'🍜 午餐 - PARCO CITY美食街',desc:'3F美食街，可邊吃邊看海景！',cost:'¥15,000 ≈ NT$3,150'},
+    {t:'06:50-09:20',title:'✈️ IT230 台北→那霸（虎航）',desc:'台北桃園T1起飛 → 那霸機場 09:20抵達<br>飛行時間：1小時30分<br>✈️ 訂位代號：G9R8PD',note:'⚠️ 虎航注意：不含行李，需另購托運額度｜不含餐食｜隨身行李限7kg｜建議提前網路報到'},
+    {t:'09:30-11:30',title:'🚗 OTS租車取車',desc:'入境、提領行李<br>📍 OTS租車那霸機場店（有免費接駁車）<br>🚙 建議車型：8人座×1 + 5人座×1<br>取車時記得確認保險方案',note:'📌 OTS租車已確定，記得帶：台灣駕照正本+日文譯本+護照+信用卡'},
+    {t:'11:30-14:30',title:'🛍️ SAN-A浦添西海岸 PARCO CITY',desc:'📍 浦添市西洲3-1-1（機場→恩納村途中，完全順路！）<br>⏰ 10:00-22:00<br>🅿️ 免費停車約3,800個<br>💡 250間店舖，多日系品牌<br><br>必逛：<br>🎮 3F Namco遊樂場（小孩愛）<br>🧸 阿卡將嬰幼童用品<br>🪙 1F扭蛋機100+台<br>🌊 天台展望台看海<br>🛍️ Tokyu Hands、3 Coins',map:'https://www.google.com/maps/search/?api=1&query=SAN-A+浦添西海岸+PARCO+CITY'},
+    {t:'13:00-14:00',title:'🍜 午餐 - PARCO CITY美食街',desc:'3F美食街',cost:'¥15,000 ≈ NT$3,150'},
     {t:'14:30-15:30',title:'🚗 前往恩納村住宿',desc:'THE FEEL ONNA 2<br>📍 沖縄県国頭郡恩納村恩納2000-1<br>車程約45分鐘',map:'https://www.google.com/maps/search/?api=1&query=THE+FEEL+ONNA+2+恩納村'},
     {t:'15:30-16:00',title:'🏠 Check-in、休息',desc:'放行李、簡單休息'},
     {t:'16:00-17:30',title:'🛒 MaxValu超市採購',desc:'距離住宿約5分鐘<br>採購：早餐食材、飲料、零食、泡麵、水果',cost:'¥20,000 ≈ NT$4,200',map:'https://www.google.com/maps/search/?api=1&query=MaxValu+恩納店'},
@@ -107,31 +108,31 @@ const DAYS = {
     ['晚餐','¥15,000 / NT$3,150'],
     ['📊 當日小計（不含購物）','¥51,500 / NT$10,815'],
   ]},
-  2:{date:'6/21（日）',theme:'北部經典 - 水族館之旅',acts:[
+  2:{date:'6/21（日）',theme:'北部輕鬆遊 - 古宇利島＆今歸仁 <span class="weekday-warn">假日人多，避開熱門室內景點</span>',acts:[
     {t:'08:00',title:'🍳 早餐、出發',desc:'準備前往北部'},
-    {t:'09:00-10:30',title:'🚗 前往美麗海水族館',desc:'從恩納村出發，車程約1小時'},
-    {t:'10:30-13:30',title:'🐋 美麗海水族館',desc:'世界級水族館！必看黑潮之海的鯨鯊<br>⏰ 08:30-18:30<br>🎭 鯨鯊餵食秀：15:00 / 17:00<br>🐬 海豚秀：10:30 / 13:00 / 15:00（免費）',cost:'大人¥2,180×6 + 小孩¥710×5 = ¥16,630 ≈ NT$3,492',map:'https://www.google.com/maps/search/?api=1&query=沖繩美麗海水族館'},
-    {t:'13:30-14:30',title:'🍱 午餐 - Ocean Blue',desc:'水族館內餐廳，邊吃邊看鯨鯊！',cost:'¥12,000 ≈ NT$2,520'},
-    {t:'14:30-15:30',title:'🌳 備瀨福木林道',desc:'超美綠色隧道，拍照聖地！<br>距離水族館約5分鐘，免費景點',map:'https://www.google.com/maps/search/?api=1&query=備瀨福木林道'},
-    {t:'16:00-17:30',title:'💙 古宇利島',desc:'開車過超美的古宇利大橋（2km海上大橋）<br>📸 心形岩、古宇利海灘、蝦蝦飯小吃攤',map:'https://www.google.com/maps/search/?api=1&query=古宇利島'},
-    {t:'18:00-19:30',title:'🍕 晚餐 - 花人逢',desc:'超美海景披薩餐廳<br>📍 本部町山里1153-2',cost:'¥18,000 ≈ NT$3,780'},
+    {t:'09:00-10:30',title:'🚗 前往今歸仁城址',desc:'從恩納村出發，車程約1小時'},
+    {t:'10:30-11:30',title:'🏯 今歸仁城址（世界文化遺產）',desc:'500年歷史的琉球王國城郭遺址<br>📍 今歸仁村今泊5101<br>⏰ 08:00-18:00<br>🎫 城址外圍免費，城內¥400/人<br>💡 戶外景點，假日也不擁擠',cost:'大人¥400×6 = ¥2,400 ≈ NT$504',map:'https://www.google.com/maps/search/?api=1&query=今歸仁城址+沖繩'},
+    {t:'11:30-12:30',title:'🌳 備瀨福木林道',desc:'超美綠色隧道！<br>📍 本部町備瀨<br>🎫 免費景點，戶外，假日也OK',map:'https://www.google.com/maps/search/?api=1&query=備瀨福木林道'},
+    {t:'12:30-13:30',title:'🍜 午餐',desc:'備瀨周邊小店（沖繩麵、海鮮）',cost:'¥12,000 ≈ NT$2,520'},
+    {t:'14:00-16:30',title:'💙 古宇利島',desc:'超美的古宇利大橋（2km海上大橋）！<br>📸 心形岩（Tinu海灘）<br>🏖️ 古宇利海灘玩水<br>🦐 蝦蝦飯小吃攤<br>🎫 免費景點，戶外，假日也OK',map:'https://www.google.com/maps/search/?api=1&query=古宇利島'},
+    {t:'18:00-19:30',title:'🍕 晚餐 - 花人逢',desc:'超美海景披薩餐廳！<br>📍 本部町山里1153-2<br>📞 0980-47-6209',cost:'¥18,000 ≈ NT$3,780',note:'📌 人氣超旺！強烈建議事先電話訂位（日文）',map:'https://www.google.com/maps/search/?api=1&query=花人逢+本部町'},
     {t:'20:30',title:'🌙 回恩納村住宿',desc:'車程約1小時'},
   ],budget:[
-    ['美麗海水族館門票','¥16,630 / NT$3,492'],
+    ['今歸仁城址門票','¥2,400 / NT$504'],
     ['午餐','¥12,000 / NT$2,520'],
     ['晚餐','¥18,000 / NT$3,780'],
     ['停車費+過路費','¥2,000 / NT$420'],
-    ['📊 當日小計','¥48,630 / NT$10,212'],
+    ['📊 當日小計','¥34,400 / NT$7,224'],
   ]},
-  3:{date:'6/22（一）',theme:'浮潛體驗 + 好市多',acts:[
+  3:{date:'6/22（一）',theme:'浮潛體驗 + 好市多 <span class="weekday-ok">平日，人少推薦</span>',acts:[
     {t:'08:00',title:'🍳 早餐',desc:'住宿附近或自備'},
-    {t:'08:30-10:30',title:'🤿 青洞浮潛體驗',desc:'📍 真榮田岬（距離住宿約15分鐘）<br>⏰ 建議預約08:00-10:00梯次（人最少）<br>✅ 包含：裝備、教練、水中拍照、魚飼料<br>💡 不會游泳也OK（有浮具）',cost:'¥5,500×11人 = ¥60,500 ≈ NT$12,705',map:'https://www.google.com/maps/search/?api=1&query=真榮田岬+青洞'},
+    {t:'08:30-10:30',title:'🤿 青洞浮潛體驗',desc:'📍 真榮田岬（距離住宿約15分鐘）<br>⏰ 建議08:00梯次（人最少）<br>✅ 包含：裝備、教練、水中拍照、魚飼料<br>💡 不會游泳也OK（有浮具）<br>💡 選擇有中文教練的方案',cost:'¥5,500×11人 = ¥60,500 ≈ NT$12,705',note:'📌 必須事先預約！Klook / KKday 選中文教練方案，建議出發前1個月訂好',map:'https://www.google.com/maps/search/?api=1&query=真榮田岬+青洞'},
     {t:'11:00-12:00',title:'🚿 回住宿沖洗休息',desc:'換衣服、準備午餐'},
     {t:'12:00-13:00',title:'🍜 午餐',desc:'住宿附近便當或自備',cost:'¥5,000 ≈ NT$1,050'},
     {t:'13:00-14:00',title:'🚗 前往好市多',desc:'從恩納村前往南城市，車程約50分鐘'},
     {t:'14:00-17:00',title:'🛒 好市多 南城倉庫店',desc:'📍 南城市つきしろIC南<br>⏰ 10:00-20:00<br>💡 台灣會員卡可用！慢慢逛<br>⚠️ 已取消退稅服務（2023年7月起）',cost:'¥50,000 ≈ NT$10,500（購物預算）',map:'https://www.google.com/maps/search/?api=1&query=Costco+南城倉庫店+沖繩'},
     {t:'17:00-18:00',title:'🍕 好市多美食街晚餐',desc:'披薩、熱狗、冰淇淋',cost:'¥6,000 ≈ NT$1,260'},
-    {t:'18:00-19:00',title:'🚗 返回恩納村',desc:'車程約50分鐘，高速公路'},
+    {t:'18:00-19:00',title:'🚗 返回恩納村',desc:'車程約50分鐘'},
     {t:'19:00',title:'🌙 回住宿休息',desc:'整理好市多戰利品'},
   ],budget:[
     ['青洞浮潛','¥60,500 / NT$12,705'],
@@ -141,10 +142,10 @@ const DAYS = {
     ['高速公路過路費','¥2,500 / NT$525'],
     ['📊 當日小計','¥124,000 / NT$26,040'],
   ]},
-  4:{date:'6/23（二）',theme:'中部文化日',acts:[
-    {t:'09:00',title:'🍳 早餐、出發',desc:'準備前往琉球村'},
-    {t:'10:00-12:00',title:'🏰 琉球村',desc:'體驗沖繩傳統文化、穿琉球服拍照<br>📍 恩納村山田1130<br>⏰ 09:00-17:30',cost:'大人¥1,500×6 + 小孩¥600×5 = ¥12,000 ≈ NT$2,520',map:'https://www.google.com/maps/search/?api=1&query=琉球村+恩納'},
-    {t:'12:30-14:00',title:'🍜 午餐',desc:'琉球村內餐廳或港川外人住宅街',cost:'¥12,000 ≈ NT$2,520'},
+  4:{date:'6/23（二）',theme:'中部文化日 <span class="weekday-ok">平日</span>',acts:[
+    {t:'09:00',title:'🍳 早餐、出發',desc:''},
+    {t:'10:00-12:00',title:'🏰 琉球村',desc:'體驗沖繩傳統文化、穿琉球服拍照<br>📍 恩納村山田1130<br>⏰ 09:00-17:30',cost:'大人¥1,500×6 + 小孩¥600×5 = ¥12,000 ≈ NT$2,520',note:'📌 建議可在 Klook / 官網 提前購票，現場購票也OK',map:'https://www.google.com/maps/search/?api=1&query=琉球村+恩納'},
+    {t:'12:30-14:00',title:'🍜 午餐',desc:'琉球村內餐廳',cost:'¥12,000 ≈ NT$2,520'},
     {t:'14:30-17:30',title:'🎡 美國村',desc:'超好逛的美式購物區！<br>📍 北谷町美浜，免費景點<br>🎡 摩天輪（¥600/人）<br>🛍️ American Depot購物商場<br>📸 彩色貨櫃屋拍照<br>🏖️ 日落海灘',map:'https://www.google.com/maps/search/?api=1&query=美國村+北谷町'},
     {t:'18:00-19:30',title:'🍔 晚餐 - GORDIES',desc:'美式漢堡，超大份量！<br>📍 美國村內',cost:'¥15,000 ≈ NT$3,150'},
     {t:'20:00',title:'🌙 回住宿',desc:'車程約30分鐘'},
@@ -155,15 +156,15 @@ const DAYS = {
     ['晚餐','¥15,000 / NT$3,150'],
     ['📊 當日小計','¥45,600 / NT$9,576'],
   ]},
-  5:{date:'6/24（三）',theme:'南部購物日',acts:[
-    {t:'08:30',title:'🍳 早餐',desc:'準備前往南部'},
+  5:{date:'6/24（三）',theme:'南部購物日 <span class="weekday-ok">平日</span>',acts:[
+    {t:'08:30',title:'🍳 早餐',desc:''},
     {t:'09:00-10:30',title:'🚗 前往南部',desc:'車程約1小時'},
-    {t:'10:30-12:30',title:'🏯 首里城',desc:'琉球王國歷史遺跡<br>📍 那霸市首里金城町1-2<br>⏰ 08:00-18:00',cost:'大人¥400×6 + 小孩¥160×5 = ¥3,200 ≈ NT$672',map:'https://www.google.com/maps/search/?api=1&query=首里城'},
-    {t:'12:30-14:00',title:'🍜 午餐 - 國際通',desc:'沖繩最熱鬧商店街，隨意選餐廳（燒肉、海鮮、拉麵都有）',cost:'¥18,000 ≈ NT$3,780'},
+    {t:'10:30-12:30',title:'🏯 首里城',desc:'琉球王國歷史遺跡<br>📍 那霸市首里金城町1-2<br>⏰ 08:00-18:00',cost:'大人¥400×6 + 小孩¥160×5 = ¥3,200 ≈ NT$672',note:'📌 可在 Klook / 官網 提前購票，平日人少',map:'https://www.google.com/maps/search/?api=1&query=首里城'},
+    {t:'12:30-14:00',title:'🍜 午餐 - 國際通',desc:'燒肉、海鮮、拉麵都有',cost:'¥18,000 ≈ NT$3,780'},
     {t:'14:00-15:30',title:'🛍️ 國際通逛街',desc:'伴手禮、藥妝、紀念品',map:'https://www.google.com/maps/search/?api=1&query=國際通+那霸'},
     {t:'16:00-17:00',title:'🏍️ Ricoland 沖繩店',desc:'📍 豊見城市真玉橋178-1<br>⏰ 平日11:00-21:00',map:'https://maps.app.goo.gl/ikc134N8BPbdpCQw6'},
-    {t:'17:00-17:30',title:'⚾ SPORTS DEPO 豊崎店',desc:'少年棒球用品超齊全！（Ricoland旁邊）<br>Mizuno、SSK、ZETT 常有特價<br>少年用手套、外野/內野款都齊全',map:'https://www.google.com/maps/search/?api=1&query=SPORTS+DEPO+豊崎+沖縄'},
-    {t:'17:30-20:00',title:'🛍️ ASHIBINAA Outlet',desc:'📍 豊見城市豊崎1-188<br>⏰ 10:00-20:00<br>💡 品牌：COACH、GUCCI、adidas、GAP、童裝區<br>🍜 2樓有拉麵、牛排等餐廳',cost:'晚餐 ¥15,000 ≈ NT$3,150',map:'https://www.google.com/maps/search/?api=1&query=ASHIBINAA+Outlet'},
+    {t:'17:00-17:30',title:'⚾ SPORTS DEPO 豊崎店',desc:'少年棒球用品！Mizuno、SSK、ZETT常有特價<br>少年用手套、外野/內野款齊全<br>📍 豊見城市豊崎（Ricoland旁邊）',map:'https://www.google.com/maps/search/?api=1&query=SPORTS+DEPO+豊崎+沖縄'},
+    {t:'17:30-20:00',title:'🛍️ ASHIBINAA Outlet',desc:'📍 豊見城市豊崎1-188<br>⏰ 10:00-20:00<br>💡 COACH、GUCCI、adidas、GAP、童裝<br>🍜 2樓有拉麵、牛排等餐廳',cost:'晚餐 ¥15,000 ≈ NT$3,150',note:'💡 退稅：購買滿¥5,000可退稅，記得帶護照',map:'https://www.google.com/maps/search/?api=1&query=ASHIBINAA+Outlet'},
     {t:'20:30',title:'🌙 回恩納村住宿',desc:'車程約50分鐘'},
   ],budget:[
     ['首里城門票','¥3,200 / NT$672'],
@@ -173,33 +174,34 @@ const DAYS = {
     ['停車費+過路費','¥2,500 / NT$525'],
     ['📊 當日小計','¥38,700 / NT$8,127'],
   ]},
-  6:{date:'6/25（四）',theme:'北部體驗活動日',acts:[
-    {t:'08:30',title:'🍳 早餐、出發',desc:'準備前往名護'},
-    {t:'09:00-10:00',title:'🚗 前往名護',desc:'車程約40分鐘'},
-    {t:'10:00-11:30',title:'🍍 名護鳳梨園',desc:'可愛的鳳梨車帶你遊園！<br>📍 名護市為又1195<br>⏰ 09:00-18:00<br>💡 可試吃鳳梨、買鳳梨酒、鳳梨蛋糕',cost:'大人¥1,200×6 + 小孩¥600×5 = ¥10,200 ≈ NT$2,142',map:'https://www.google.com/maps/search/?api=1&query=名護鳳梨園'},
-    {t:'11:45-13:30',title:'🦕 DINO恐龍公園',desc:'📍 名護市中山1024-1（鳳梨園旁5分鐘）<br>⏰ 09:00-18:00<br>💡 超過80種會動會叫的恐龍！小朋友超愛',cost:'大人¥1,000×6 + 小孩¥600×5 = ¥9,000 ≈ NT$1,890',map:'https://www.google.com/maps/search/?api=1&query=DINO恐龍公園+名護'},
-    {t:'13:30-14:00',title:'🍠 御菓子御殿',desc:'恐龍公園旁，買沖繩必買伴手禮「紅芋塔」',cost:'¥8,000 ≈ NT$1,680'},
-    {t:'14:00-15:00',title:'🍜 午餐 - 島豚家',desc:'碳烤叉燒沖繩麵<br>⏰ 11:00-15:00（只營業4小時，要提早！）',cost:'¥12,000 ≈ NT$2,520'},
-    {t:'15:30-17:00',title:'🌉 海中道路 + 濱比嘉島',desc:'超美的海上公路！<br>📍 宇流麻市與那城屋平<br>🎫 免費景點<br>• 開車欣賞海景<br>• 濱比嘉島神社參拜<br>• 海灘散步',map:'https://www.google.com/maps/search/?api=1&query=海中道路+沖繩'},
-    {t:'17:30-19:00',title:'🦐 晚餐 - 浜の家',desc:'海鮮料理<br>📍 恩納村瀬良垣1012',cost:'¥20,000 ≈ NT$4,200'},
-    {t:'19:30',title:'🌙 回住宿休息',desc:''},
+  6:{date:'6/25（四）',theme:'美麗海水族館 + 北部體驗 <span class="weekday-ok">平日，人少推薦</span>',acts:[
+    {t:'08:00',title:'🍳 早餐、出發',desc:'今天去美麗海水族館！平日人少是最佳時機'},
+    {t:'09:00-10:30',title:'🚗 前往美麗海水族館',desc:'從恩納村出發，車程約1小時'},
+    {t:'10:30-13:30',title:'🐋 美麗海水族館',desc:'世界級水族館！必看黑潮之海的鯨鯊<br>📍 本部町字石川424<br>⏰ 08:30-18:30<br>🎭 鯨鯊餵食秀：15:00 / 17:00<br>🐬 海豚秀：10:30 / 13:00 / 15:00（免費，戶外）<br>💡 平日來人少，體驗更好！',cost:'大人¥2,180×6 + 小孩¥710×5 = ¥16,630 ≈ NT$3,492',note:'📌 可在 Klook / KKday 提前購票，稍微優惠且可跳過購票隊伍',map:'https://www.google.com/maps/search/?api=1&query=沖繩美麗海水族館'},
+    {t:'13:30-14:30',title:'🍱 午餐 - Ocean Blue',desc:'水族館內餐廳，邊吃邊看鯨鯊！',cost:'¥12,000 ≈ NT$2,520'},
+    {t:'15:00-16:00',title:'🍍 名護鳳梨園',desc:'可愛鳳梨車遊園！<br>📍 名護市為又1195<br>⏰ 09:00-18:00<br>💡 可試吃鳳梨、買鳳梨酒',cost:'大人¥1,200×6 + 小孩¥600×5 = ¥10,200 ≈ NT$2,142',map:'https://www.google.com/maps/search/?api=1&query=名護鳳梨園'},
+    {t:'16:00-17:30',title:'🦕 DINO恐龍公園',desc:'📍 名護市中山1024-1（鳳梨園旁5分鐘）<br>⏰ 09:00-18:00<br>💡 80+種會動會叫的恐龍！',cost:'大人¥1,000×6 + 小孩¥600×5 = ¥9,000 ≈ NT$1,890',map:'https://www.google.com/maps/search/?api=1&query=DINO恐龍公園+名護'},
+    {t:'17:30-18:00',title:'🍠 御菓子御殿',desc:'買沖繩必買伴手禮「紅芋塔」',cost:'¥8,000 ≈ NT$1,680'},
+    {t:'18:30-20:00',title:'🦐 晚餐 - 浜の家',desc:'海鮮料理<br>📍 恩納村瀬良垣1012',cost:'¥20,000 ≈ NT$4,200'},
+    {t:'20:00',title:'🌙 回住宿休息',desc:''},
   ],budget:[
+    ['美麗海水族館門票','¥16,630 / NT$3,492'],
+    ['午餐（Ocean Blue）','¥12,000 / NT$2,520'],
     ['鳳梨園門票','¥10,200 / NT$2,142'],
     ['DINO恐龍公園','¥9,000 / NT$1,890'],
     ['御菓子御殿伴手禮','¥8,000 / NT$1,680'],
-    ['午餐','¥12,000 / NT$2,520'],
     ['晚餐','¥20,000 / NT$4,200'],
     ['停車費+過路費','¥2,000 / NT$420'],
-    ['📊 當日小計','¥61,200 / NT$12,852'],
+    ['📊 當日小計','¥77,830 / NT$16,344'],
   ]},
   7:{date:'6/26（五）',theme:'AEON購物日 + 整理行李',acts:[
     {t:'09:00',title:'🍳 早餐、整理',desc:''},
     {t:'09:30-10:00',title:'🚗 前往AEON',desc:'車程約30分鐘'},
-    {t:'10:00-17:00',title:'🛍️ 永旺夢樂城沖繩來客夢',desc:'📍 北中城村字ライカム1番地<br>⏰ 10:00-22:00<br>🅿️ 免費停車<br>💡 沖繩最大親子購物中心！200+家店舖<br><br>必逛：<br>🎮 寶可夢中心沖繩店（3F）<br>👕 UNIQLO、GU、H&M<br>🎨 無印良品、LOFT<br>💊 BIC CAMERA藥妝（1F+3F）<br>👟 ABC-MART<br>🧸 Disney Store、Sanrio',map:'https://www.google.com/maps/search/?api=1&query=永旺夢樂城沖繩來客夢'},
+    {t:'10:00-17:00',title:'🛍️ 永旺夢樂城沖繩來客夢',desc:'📍 北中城村字ライカム1番地<br>⏰ 10:00-22:00<br>🅿️ 免費停車<br>💡 沖繩最大親子購物中心！200+家店舖<br><br>必逛：<br>🎮 寶可夢中心沖繩店（3F）<br>👕 UNIQLO、GU、H&M<br>🎨 無印良品、LOFT<br>💊 BIC CAMERA藥妝<br>👟 ABC-MART<br>🧸 Disney Store、Sanrio',map:'https://www.google.com/maps/search/?api=1&query=永旺夢樂城沖繩來客夢'},
     {t:'12:30-13:30',title:'🍜 午餐 - AEON美食街',desc:'4F、5F各種選擇',cost:'¥15,000 ≈ NT$3,150'},
     {t:'17:00-18:00',title:'🚗 回恩納村住宿',desc:'車程約30分鐘'},
     {t:'18:00-19:00',title:'🍜 晚餐',desc:'住宿附近隨意或超市買',cost:'¥8,000 ≈ NT$1,680'},
-    {t:'19:00-21:00',title:'📦 最後整理行李',desc:'✓ 所有戰利品打包進行李<br>✓ 伴手禮分配好<br>✓ 明天衣服先準備好<br>✓ 液體記得放托運'},
+    {t:'19:00-21:00',title:'📦 最後整理行李',desc:'✓ 所有戰利品打包<br>✓ 伴手禮分配好<br>✓ 明天衣服先準備<br>✓ 液體記得放托運<br>✓ 護照、機票、信用卡確認'},
     {t:'21:00',title:'🌙 早點休息',desc:'準備明天回程'},
   ],budget:[
     ['午餐','¥15,000 / NT$3,150'],
@@ -211,14 +213,13 @@ const DAYS = {
   8:{date:'6/27（六）',theme:'回程日',acts:[
     {t:'07:00-08:00',title:'📦 最後整理、退房',desc:'💡 記得檢查：護照、錢包、手機、充電器'},
     {t:'08:00-08:30',title:'🍜 早餐',desc:'便利商店或住宿附近',cost:'¥3,000 ≈ NT$630'},
-    {t:'08:30-10:00',title:'🚗 前往那霸機場',desc:'車程約1小時<br>💡 預留時間給塞車'},
-    {t:'10:00-11:00',title:'⛽ 還車',desc:'📍 租車公司機場店<br>💡 記得加滿油再還車！',cost:'加油費 ¥5,000 ≈ NT$1,050'},
+    {t:'08:30-10:00',title:'🚗 前往那霸機場',desc:'車程約1小時，預留塞車時間'},
+    {t:'10:00-11:00',title:'⛽ OTS還車',desc:'📍 OTS租車那霸機場店<br>💡 記得加滿油再還車！<br>💡 保留加油收據',cost:'加油費 ¥5,000 ≈ NT$1,050'},
     {t:'11:00-14:00',title:'🛍️ 機場自由活動',desc:'那霸機場有藥妝、伴手禮店<br>☕ 午餐、休息',cost:'¥10,000 ≈ NT$2,100'},
-    {t:'14:00-15:00',title:'📦 整理行李、打包',desc:'💡 液體要放託運行李'},
     {t:'15:00-17:00',title:'🚶 國內線→國際線移動',desc:'⚠️ BR185在國際線，不要走錯！'},
     {t:'17:00-19:00',title:'📋 辦理報到、出境、候機',desc:''},
-    {t:'19:55',title:'✈️ BR185 起飛！',desc:'那霸機場 → 台北桃園T2'},
-    {t:'20:30',title:'🏠 抵達台灣 🎉',desc:'台灣比日本慢1小時<br>完美旅程結束！'},
+    {t:'19:55',title:'✈️ BR185 起飛！（長榮）',desc:'那霸機場I → 台北桃園T2<br>✈️ 訂位代號：EQ7NDE',note:'⚠️ 長榮注意：含托運行李（確認購買的額度）｜可在台灣提前網路報到｜桃園機場入T2航廈'},
+    {t:'20:30',title:'🏠 抵達台灣 🎉',desc:'台灣比日本慢1小時，完美旅程結束！'},
   ],budget:[
     ['早餐','¥3,000 / NT$630'],
     ['加油費','¥5,000 / NT$1,050'],
@@ -235,9 +236,10 @@ function renderDay(n){
       <div class="act-title">${a.title}</div>
       ${a.desc?`<div class="act-desc">${a.desc}</div>`:''}
       ${a.cost?`<div class="act-cost">💴 ${a.cost}</div>`:''}
+      ${a.note?`<div class="act-note">${a.note}</div>`:''}
       ${a.map?`<a href="${a.map}" class="map-btn" target="_blank">Google 導航</a>`:''}
     </div>`).join('');
-  let brows=d.budget.map((r,i)=>`<div class="budget-row"><span>${r[0]}</span><span>${r[1]}</span></div>`).join('');
+  let brows=d.budget.map(r=>`<div class="budget-row"><span>${r[0]}</span><span>${r[1]}</span></div>`).join('');
   return `<div class="day-card">
     <div class="day-hd">
       <div class="day-num">${n}</div>
@@ -251,7 +253,7 @@ function renderDay(n){
 
 function showItinerary(){
   const c=document.getElementById('mainContainer');
-  c.innerHTML=`<div class="tab-nav" id="tabNav">${[1,2,3,4,5,6,7,8].map(n=>`<button class="tab-btn${n===1?' active':''}" onclick="switchDay(${n},this)">Day ${n}</button>`).join('')}</div><div id="dayContent">${renderDay(1)}</div>`;
+  c.innerHTML=`<div class="tab-nav">${[1,2,3,4,5,6,7,8].map(n=>`<button class="tab-btn${n===1?' active':''}" onclick="switchDay(${n},this)">Day ${n}</button>`).join('')}</div><div id="dayContent">${renderDay(1)}</div>`;
 }
 
 function switchDay(n,btn){
@@ -265,21 +267,21 @@ function showBudget(){
   document.getElementById('mainContainer').innerHTML=`
     <div class="budget-box" style="margin-top:0">
       <div class="budget-title">8天7夜總預算</div>
-      <div class="budget-row"><span>Day 1 - 抵達日</span><span>¥36,500 / NT$7,665</span></div>
-      <div class="budget-row"><span>Day 2 - 美麗海水族館</span><span>¥48,630 / NT$10,212</span></div>
+      <div class="budget-row"><span>Day 1 - 抵達+PARCO</span><span>¥51,500 / NT$10,815</span></div>
+      <div class="budget-row"><span>Day 2 - 北部輕鬆遊</span><span>¥34,400 / NT$7,224</span></div>
       <div class="budget-row"><span>Day 3 - 浮潛+好市多</span><span>¥124,000 / NT$26,040</span></div>
       <div class="budget-row"><span>Day 4 - 琉球村+美國村</span><span>¥45,600 / NT$9,576</span></div>
       <div class="budget-row"><span>Day 5 - 南部購物日</span><span>¥38,700 / NT$8,127</span></div>
-      <div class="budget-row"><span>Day 6 - 北部體驗日</span><span>¥61,200 / NT$12,852</span></div>
-      <div class="budget-row"><span>Day 7 - AEON購物日</span><span>¥24,000 / NT$5,040</span></div>
+      <div class="budget-row"><span>Day 6 - 美麗海水族館+北部</span><span>¥77,830 / NT$16,344</span></div>
+      <div class="budget-row"><span>Day 7 - AEON購物日</span><span>¥23,000 / NT$4,830</span></div>
       <div class="budget-row"><span>Day 8 - 回程</span><span>¥18,000 / NT$3,780</span></div>
-      <div class="budget-row"><span>🎯 總計（不含Outlet/AEON購物）</span><span>¥476,630 / NT$100,092</span></div>
+      <div class="budget-row"><span>🎯 總計（不含自由購物）</span><span>¥413,030 / NT$86,736</span></div>
     </div>
     <div class="info-card">
       <div class="info-title">💡 預算說明</div>
-      <div class="info-sec"><div class="info-label">平均每人費用</div><div class="info-val">約 ¥43,330（NT$9,099）</div></div>
-      <div class="info-sec"><div class="info-label">未計入項目</div><div class="info-val">• ASHIBINAA Outlet 購物<br>• AEON 購物<br>• 好市多購物（已列¥50,000）<br>• 個人零食飲料<br>• 紀念品</div></div>
-      <div class="info-sec"><div class="info-label">匯率參考</div><div class="info-val">1 日幣 ≈ NT$0.21<br>¥10,000 ≈ NT$2,100</div></div>
+      <div class="info-sec"><div class="info-label">平均每人費用</div><div class="info-val">約 ¥37,548（NT$7,885）</div></div>
+      <div class="info-sec"><div class="info-label">未計入項目</div><div class="info-val">• PARCO CITY購物<br>• ASHIBINAA Outlet購物<br>• AEON購物<br>• 好市多購物（已列¥50,000）<br>• 個人零食飲料<br>• 紀念品</div></div>
+      <div class="info-sec"><div class="info-label">匯率參考</div><div class="info-val">1日幣 ≈ NT$0.21<br>¥10,000 ≈ NT$2,100</div></div>
     </div>`;
 }
 
@@ -287,36 +289,40 @@ function showChecklist(){
   const items=[
     ['📋 出發前2個月',[
       '護照確認有效期6個月以上',
+      'OTS租車預訂（確定！記得保留確認信）',
       '台灣駕照正本 + 日文譯本（監理站辦理NT$100）',
       '好市多會員卡',
-      '租車預訂（ToCoo!、Tabirai、OTS、Times）',
-      '青洞浮潛預訂（Klook、KKday選中文教練）',
+      '浮潛預訂（Klook/KKday，選中文教練方案）',
       '日本上網（eSIM / 實體SIM / WiFi分享器）',
     ]],
     ['📋 出發前1個月',[
       '旅遊平安險 + 海外醫療險',
       '換日幣（約¥100,000-150,000）',
+      '花人逢訂位（0980-47-6209，日文電話）',
       'App下載：Google Maps、Google翻譯、NAVITIME',
+      '線上報到（起飛前48小時）',
     ]],
     ['📋 出發前1週',[
-      '確認航班時間（IT230、BR185）',
-      '線上報到（起飛前48小時）',
-      '列印租車、住宿、浮潛預約單',
+      '確認OTS租車預約',
+      '確認浮潛預約（Klook/KKday訂單）',
+      '確認花人逢訂位',
+      '列印所有預約確認單',
       '準備藥品（感冒、腸胃、暈車、防蚊、退燒）',
     ]],
     ['🧳 行李清單',[
       '護照、機票、日幣、信用卡、駕照+譯本',
       '手機、充電器、行動電源',
-      '短袖×6、短褲×4、薄外套×1',
-      '泳衣×1套（浮潛用）',
+      '短袖×6-7、短褲×4-5、薄外套×1',
+      '泳衣×1套（浮潛、海灘用）',
       '雨傘/輕便雨衣×11人份',
-      '防曬乳 SPF50+（多帶幾瓶）',
+      '防曬乳 SPF50+（每2小時補擦）',
       '防蚊液',
-      '盥洗用品、毛巾',
-      '空行李箱（裝回程戰利品）',
+      '盥洗用品',
+      '常備藥（感冒、腸胃、退燒、暈車）',
+      '空行李箱/壓縮袋（裝回程戰利品）',
     ]],
   ];
-  const html=items.map(([title,list])=>`
+  document.getElementById('mainContainer').innerHTML=items.map(([title,list])=>`
     <div class="checklist">
       <div class="cl-title">${title}</div>
       ${list.map(item=>`
@@ -325,22 +331,73 @@ function showChecklist(){
           <div class="cl-text">${item}</div>
         </div>`).join('')}
     </div>`).join('');
-  document.getElementById('mainContainer').innerHTML=html;
 }
 
 function showTips(){
   document.getElementById('mainContainer').innerHTML=`
+    <div class="info-card" style="border-left:5px solid #FF6B00">
+      <div class="info-title">✈️ 虎航注意事項（去程 IT230）</div>
+      <div class="info-sec"><div class="info-label">行李</div>
+      <div class="info-val">
+        ⚠️ <strong>不含托運行李</strong>，需另外加購<br>
+        • 隨身行李：7kg（尺寸需符合規定）<br>
+        • 托運行李：需提前在網站購買（現場買貴很多）<br>
+        • 建議每人至少購買 15kg 或 20kg<br>
+        • 11人共行，建議統一購買較划算
+      </div></div>
+      <div class="info-sec"><div class="info-label">餐食</div>
+      <div class="info-val">⚠️ <strong>不含餐食</strong><br>可提前在官網購買機上餐，或自備零食</div></div>
+      <div class="info-sec"><div class="info-label">報到</div>
+      <div class="info-val">
+        ✈️ 起飛前48小時可網路報到<br>
+        📍 桃園機場第1航廈（T1）<br>
+        ⏰ 建議提前<strong>2小時</strong>到機場（06:50起飛→04:50到機場）
+      </div></div>
+      <div class="info-sec"><div class="info-label">選位</div>
+      <div class="info-val">⚠️ 座位需額外付費選位<br>11人一起建議提前選好鄰近座位</div></div>
+    </div>
+    <div class="info-card" style="border-left:5px solid #00563F">
+      <div class="info-title">✈️ 長榮注意事項（回程 BR185）</div>
+      <div class="info-sec"><div class="info-label">行李</div>
+      <div class="info-val">
+        ✅ <strong>含托運行李</strong>（確認購票時選的額度）<br>
+        • 一般含 23kg×1件 / 人<br>
+        • 注意：去程買太多東西，回程要確保行李不超重！<br>
+        • 液體必須放托運（不能手提上機）
+      </div></div>
+      <div class="info-sec"><div class="info-label">報到</div>
+      <div class="info-val">
+        ✈️ 起飛前48小時可網路報到<br>
+        📍 那霸機場<strong>國際線（I航廈）</strong><br>
+        ⚠️ 不要走錯！從國內線要移動到國際線<br>
+        ⏰ 建議提前<strong>2.5小時</strong>到（19:55起飛→17:25到機場）
+      </div></div>
+      <div class="info-sec"><div class="info-label">入境台灣</div>
+      <div class="info-val">
+        📍 桃園機場第2航廈（T2）<br>
+        🚗 接機、計程車或MRT回家<br>
+        台灣比日本慢1小時（20:30台灣時間抵達）
+      </div></div>
+    </div>
     <div class="info-card" style="border-left:5px solid var(--coral)">
       <div class="info-title">🚗 駕駛注意事項</div>
-      <div class="info-sec"><div class="info-label" style="color:var(--coral);font-size:14px">⚠️ 超重要！</div>
+      <div class="info-sec"><div class="info-label" style="color:var(--coral)">⚠️ 超重要！</div>
       <div class="info-val">
         <strong style="color:var(--coral)">🚨 靠左行駛！</strong>（跟台灣完全相反）<br>
-        <strong style="color:var(--coral)">🚨 方向燈在右邊</strong>（雨刷在左邊，常常打錯😅）<br>
-        🚫 紅燈不能右轉（除非有標示）<br>
-        🚸 行人絕對優先，一定要停<br>
+        <strong style="color:var(--coral)">🚨 方向燈在右邊</strong>（雨刷在左邊，常打錯😅）<br>
+        🚫 紅燈不能右轉<br>
+        🚸 行人絕對優先<br>
         📵 嚴禁使用手機<br>
         🍺 嚴禁酒駕（零容忍）<br>
         ⛽ 還車前記得加滿油
+      </div></div>
+      <div class="info-sec"><div class="info-label">OTS租車資訊</div>
+      <div class="info-val">
+        ✓ 有免費機場接駁車<br>
+        ✓ 有中文服務<br>
+        ✓ 加購免責補償險NOC（強烈建議）<br>
+        📞 OTS那霸機場店：098-851-1677<br>
+        ⏰ 24小時緊急道路服務（取車時會給單）
       </div></div>
     </div>
     <div class="info-card" style="border-left:5px solid var(--orange)">
@@ -357,13 +414,14 @@ function showTips(){
       <div class="info-title">🤿 浮潛注意事項（Day 3）</div>
       <div class="info-sec"><div class="info-label">青洞浮潛</div>
       <div class="info-val">
-        ✓ 提前預約（Klook/KKday，選中文教練）<br>
+        📌 <strong>必須事先預約</strong>（Klook/KKday）<br>
         ✓ 6歲以上可參加<br>
         ✓ 不會游泳也OK（有浮具）<br>
-        ✓ 建議08:00-10:00梯次（人最少）<br><br>
+        ✓ 選中文教練方案<br>
+        ✓ 建議08:00梯次（人最少、海水最清）<br><br>
         ⚠️ 前一天晚上要早睡<br>
         ⚠️ 當天早餐不要吃太飽<br>
-        ⚠️ 記得擦防曬、戴蛙鏡<br>
+        ⚠️ 記得擦防曬<br>
         ⚠️ 不要碰觸珊瑚和海洋生物
       </div></div>
     </div>
@@ -379,45 +437,13 @@ function showTips(){
         ✓ 常備藥要帶（感冒、腸胃、退燒）
       </div></div>
     </div>
-    <div class="info-card" style="border-left:5px solid #87CEEB">
-      <div class="info-title">🌦️ 天氣注意（6月）</div>
-      <div class="info-sec"><div class="info-label">梅雨季尾聲</div>
-      <div class="info-val">
-        🌡️ 氣溫：26-32°C（很熱！）<br>
-        ☔ 降雨：多陣雨，要帶雨具<br>
-        ☀️ 紫外線：極強，防曬必備<br>
-        ❄️ 室內冷氣超強，薄外套要帶！
-      </div></div>
-    </div>
     <div class="info-card" style="border-left:5px solid var(--coral)">
       <div class="info-title">🚨 緊急情況</div>
       <div class="info-sec"><div class="info-label">緊急電話</div>
       <div class="info-val">
         🚨 報警：<strong>110</strong><br>
         🚑 救護車：<strong>119</strong><br>
-        📞 台灣駐日代表處（那霸）：<br><strong>+81-98-862-7008</strong><br>（平日09:00-17:00）
-      </div></div>
-      <div class="info-sec"><div class="info-label">車子故障/事故</div>
-      <div class="info-val">
-        1. 立刻打租車公司24小時專線<br>
-        2. 不要移動車子<br>
-        3. 有人受傷打119<br>
-        4. 拍照存證（車損、現場）
-      </div></div>
-    </div>
-    <div class="info-card" style="border-left:5px solid var(--orange)">
-      <div class="info-title">💳 購物注意</div>
-      <div class="info-sec"><div class="info-label">好市多（Day 3）</div>
-      <div class="info-val">
-        ✓ 台灣會員卡可用<br>
-        ✗ 已取消退稅（2023年7月起）<br>
-        💡 建議平日去（週末人超多）
-      </div></div>
-      <div class="info-sec"><div class="info-label">Outlet / 藥妝退稅</div>
-      <div class="info-val">
-        • 滿¥5,000可退稅（約8%）<br>
-        • 記得帶護照！<br>
-        • 液體要托運（不能手提上機）
+        📞 台灣駐日代表處（那霸）：<strong>+81-98-862-7008</strong>
       </div></div>
     </div>`;
 }
@@ -426,79 +452,80 @@ function showInfo(){
   document.getElementById('mainContainer').innerHTML=`
     <div class="info-card">
       <div class="info-title">✈️ 航班資訊</div>
-      <div class="info-sec"><div class="info-label">去程 6/20（六）</div>
-      <div class="info-val">IT230<br>台北桃園T1 06:50 → 那霸機場 09:20<br>飛行時間：1小時30分<br>訂位代號：G9R8PD</div></div>
-      <div class="info-sec"><div class="info-label">回程 6/27（六）</div>
-      <div class="info-val">BR185<br>那霸機場I 19:55 → 台北桃園T2 20:30<br>飛行時間：1小時35分<br>訂位代號：EQ7NDE</div></div>
+      <div class="info-sec"><div class="info-label">去程 6/20（六）- 虎航</div>
+      <div class="info-val">IT230｜訂位代號：G9R8PD<br>台北桃園T1 06:50 → 那霸機場 09:20<br>⚠️ 不含行李托運，需另購<br>⚠️ 04:50前到機場報到</div></div>
+      <div class="info-sec"><div class="info-label">回程 6/27（六）- 長榮</div>
+      <div class="info-val">BR185｜訂位代號：EQ7NDE<br>那霸機場I 19:55 → 台北桃園T2 20:30<br>✅ 含托運行李<br>⚠️ 去國際線，17:25前到機場</div></div>
     </div>
     <div class="info-card">
       <div class="info-title">🏨 住宿資訊</div>
       <div class="info-sec"><div class="info-label">THE FEEL ONNA 2</div>
       <div class="info-val">
         📍 沖縄県国頭郡恩納村恩納2000-1<br>
-        📅 6/20（六）Check-in<br>
-        📅 6/27（六）Check-out<br>
-        🛏️ 8天7夜全程入住<br>
+        📅 6/20（六）Check-in - 6/27（六）Check-out<br>
         📏 100㎡ 獨享整個空間<br>
-        🅿️ 免費停車｜📶 免費WiFi<br>
-        ⭐ 評分 9.0
+        🅿️ 免費停車｜📶 免費WiFi｜⭐ 9.0分
       </div></div>
     </div>
     <div class="info-card">
-      <div class="info-title">🚗 租車資訊</div>
-      <div class="info-sec"><div class="info-label">建議配置</div>
+      <div class="info-title">🚗 OTS租車資訊</div>
+      <div class="info-sec"><div class="info-label">已確定！OTS租車</div>
       <div class="info-val">
-        方案A（推薦）：2台車<br>
-        • 8人座×1（Toyota Alphard/Nissan Serena）<br>
-        • 5人座×1（Toyota Sienta/Honda Fit）<br><br>
-        方案B：3台5人座
+        📍 那霸機場有免費接駁車<br>
+        ✅ 有中文服務<br>
+        🚙 建議：8人座×1 + 5人座×1<br>
+        📞 OTS那霸機場：098-851-1677<br>
+        🔗 ots-rental.com
       </div></div>
       <div class="info-sec"><div class="info-label">必備文件</div>
       <div class="info-val">
         ✓ 台灣駕照正本<br>
-        ✓ 駕照日文譯本<br>
+        ✓ 駕照日文譯本（監理站辦NT$100）<br>
         ✓ 護照<br>
-        ✓ 信用卡（押金用）
+        ✓ 信用卡（押金）
       </div></div>
-      <div class="info-sec"><div class="info-label">推薦租車網站</div>
+      <div class="info-sec"><div class="info-label">取還車</div>
       <div class="info-val">
-        • ToCoo!（可比價，最划算）<br>
-        • OTS（中文服務，台灣人愛用）<br>
-        • Times Car（車輛新）
-      </div></div>
-      <div class="info-sec"><div class="info-label">保險建議</div>
-      <div class="info-val">
-        ✓ 免責補償險NOC（強烈建議）<br>
-        約¥10,000-20,000 / 8天
+        📅 取車：6/20（六）約10:30<br>
+        📅 還車：6/27（六）約10:00<br>
+        ⛽ 還車前加滿油，保留收據
       </div></div>
     </div>
     <div class="info-card">
-      <div class="info-title">📱 實用資訊</div>
+      <div class="info-title">📌 需事先預約/訂票清單</div>
+      <div class="info-sec"><div class="info-label">2個月前（必須）</div>
+      <div class="info-val">
+        🤿 <strong>青洞浮潛</strong> - Klook/KKday預約（熱門！容易客滿）<br>
+        🚗 <strong>OTS租車</strong> - 已確定，確認預約信
+      </div></div>
+      <div class="info-sec"><div class="info-label">1個月前（建議）</div>
+      <div class="info-val">
+        🍕 <strong>花人逢</strong> - 電話訂位 0980-47-6209（日文）<br>
+        🐋 <strong>美麗海水族館</strong> - Klook提前買票（稍便宜，可省排隊）<br>
+        🏰 <strong>琉球村</strong> - 可提前Klook購票（現場買也OK）
+      </div></div>
+      <div class="info-sec"><div class="info-label">不需預約</div>
+      <div class="info-val">
+        • 好市多｜PARCO CITY｜AEON｜Outlet<br>
+        • 首里城｜今歸仁城址｜古宇利島<br>
+        • 名護鳳梨園｜DINO恐龍公園｜御菓子御殿<br>
+        • 美國村｜國際通｜Ricoland｜SPORTS DEPO
+      </div></div>
+    </div>
+    <div class="info-card">
+      <div class="info-title">💡 實用資訊</div>
       <div class="info-sec"><div class="info-label">時差</div><div class="info-val">日本比台灣快1小時</div></div>
-      <div class="info-sec"><div class="info-label">匯率</div><div class="info-val">1日幣 ≈ NT$0.21<br>¥10,000 ≈ NT$2,100</div></div>
-      <div class="info-sec"><div class="info-label">換匯建議</div><div class="info-val">台灣銀行或線上結匯機場領取<br>建議換¥100,000-150,000</div></div>
-      <div class="info-sec"><div class="info-label">天氣（6月）</div><div class="info-val">🌡️ 26-32°C｜☔ 多陣雨｜☀️ 紫外線極強</div></div>
+      <div class="info-sec"><div class="info-label">匯率</div><div class="info-val">1日幣 ≈ NT$0.21｜¥10,000 ≈ NT$2,100</div></div>
+      <div class="info-sec"><div class="info-label">天氣（6月）</div><div class="info-val">🌡️ 26-32°C｜☔ 多陣雨｜☀️ 紫外線極強<br>⚠️ 室內冷氣超強，薄外套一定要帶！</div></div>
     </div>
     <div class="info-card">
-      <div class="info-title">💡 實用日文</div>
+      <div class="info-title">💬 實用日文</div>
       <div class="info-sec"><div class="info-label">基本</div>
-      <div class="info-val">
-        你好：こんにちは<br>
-        謝謝：ありがとうございます<br>
-        不好意思：すみません
-      </div></div>
+      <div class="info-val">你好：こんにちは<br>謝謝：ありがとうございます<br>不好意思：すみません</div></div>
       <div class="info-sec"><div class="info-label">餐廳</div>
-      <div class="info-val">
-        菜單：メニュー<br>
-        多少錢：いくらですか<br>
-        買單：お会計<br>
-        不吃牛：牛肉は食べられません
-      </div></div>
+      <div class="info-val">菜單：メニュー<br>多少錢：いくらですか<br>買單：お会計<br>不吃牛：牛肉は食べられません</div></div>
       <div class="info-sec"><div class="info-label">問路</div>
-      <div class="info-val">
-        廁所在哪：トイレはどこですか<br>
-        停車場：駐車場
-      </div></div>
+      <div class="info-val">廁所在哪：トイレはどこですか<br>停車場：駐車場</div></div>
     </div>`;
 }
 
@@ -507,7 +534,6 @@ function toggleCheck(cb){
   cb.nextElementSibling.classList.toggle('checked');
 }
 
-// 底部導航
 document.querySelectorAll('.nav-item').forEach(item=>{
   item.addEventListener('click',()=>{
     const page=item.dataset.page;
@@ -518,7 +544,7 @@ document.querySelectorAll('.nav-item').forEach(item=>{
       itinerary:{text:'📅 每日行程',bg:'linear-gradient(135deg,rgba(255,107,107,.9),rgba(255,140,66,.9))'},
       budget:{text:'💰 預算統計',bg:'linear-gradient(135deg,rgba(46,125,50,.9),rgba(76,175,80,.9))'},
       checklist:{text:'✅ 準備清單',bg:'linear-gradient(135deg,rgba(0,119,190,.9),rgba(0,191,165,.9))'},
-      tips:{text:'⚠️ 重要注意事項',bg:'linear-gradient(135deg,rgba(255,152,0,.9),rgba(255,193,7,.9))'},
+      tips:{text:'⚠️ 注意事項',bg:'linear-gradient(135deg,rgba(255,152,0,.9),rgba(255,193,7,.9))'},
       info:{text:'ℹ️ 實用資訊',bg:'linear-gradient(135deg,rgba(63,81,181,.9),rgba(103,58,183,.9))'},
     };
     const cfg=configs[page];
@@ -533,7 +559,6 @@ document.querySelectorAll('.nav-item').forEach(item=>{
   });
 });
 
-// 初始化
 showItinerary();
 </script>
 </body>
