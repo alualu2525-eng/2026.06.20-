@@ -65,9 +65,16 @@ header{background:linear-gradient(135deg,var(--blue),var(--teal));color:white;pa
 .nav-item.active .nav-icon{filter:grayscale(0%);transform:scale(1.1);}
 .nav-label{font-size:10px;font-weight:600;color:#666;transition:all .3s;}
 .nav-item.active .nav-label{color:var(--blue);}
-.weekday-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;margin-left:8px;}
-.weekday-ok{background:#E8F5E9;color:#2E7D32;}
-.weekday-warn{background:#FFF3E0;color:#E65100;}
+.weather-bar{background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.weather-icon{font-size:36px;}
+.weather-info{flex:1;}
+.weather-desc{font-size:16px;font-weight:700;color:var(--deep);margin-bottom:4px;}
+.weather-temp{font-size:22px;font-weight:900;color:var(--coral);}
+.weather-temp span{font-size:14px;font-weight:400;color:#666;}
+.weather-details{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;}
+.weather-tag{background:white;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;color:var(--deep);}
+.weather-note{font-size:12px;color:#555;margin-top:8px;width:100%;padding:8px 10px;background:rgba(255,255,255,0.7);border-radius:8px;line-height:1.5;}
+.weather-ref{font-size:11px;color:#999;margin-top:6px;width:100%;text-align:right;}
 </style>
 </head>
 <body>
@@ -86,6 +93,84 @@ header{background:linear-gradient(135deg,var(--blue),var(--teal));color:white;pa
   <div class="nav-item" data-page="info"><div class="nav-icon">ℹ️</div><div class="nav-label">資訊</div></div>
 </div>
 <script>
+const WEATHER={
+  1:{icon:'⛅',desc:'多雲時晴（歷史均值）',high:30,low:26,rain:30,uv:'強',wind:'微風',note:'抵達日穿著輕便，室內冷氣強備薄外套'},
+  2:{icon:'🌦',desc:'陰時有雨（歷史均值）',high:29,low:25,rain:55,uv:'中',wind:'東北風微風',note:'戶外景點注意午後陣雨，備雨具！'},
+  3:{icon:'☀️',desc:'晴時多雲（歷史均值）',high:31,low:27,rain:20,uv:'極強',wind:'微風',note:'浮潛好天氣！出水後記得防曬補擦'},
+  4:{icon:'⛅',desc:'多雲時晴（歷史均值）',high:30,low:26,rain:30,uv:'強',wind:'微風',note:'適合逛街，下午可能有陣雨'},
+  5:{icon:'🌦',desc:'陰有陣雨（歷史均值）',high:28,low:25,rain:55,uv:'弱',wind:'東北風',note:'多數在室內購物，雨天也沒關係'},
+  6:{icon:'⛅',desc:'多雲時晴（歷史均值）',high:31,low:27,rain:25,uv:'強',wind:'微風',note:'水族館平日天晴，戶外鳳梨園記得防曬'},
+  7:{icon:'☀️',desc:'晴天（歷史均值）',high:32,low:28,rain:10,uv:'極強',wind:'輕風',note:'全天室內購物，無須擔心天氣'},
+  8:{icon:'⛅',desc:'多雲（歷史均值）',high:30,low:26,rain:30,uv:'中',wind:'微風',note:'回程日，早晨出門備雨具以防萬一'},
+};
+
+// 天氣代碼轉換（WMO Code）
+function wmoToInfo(code,rain,uv,wind){
+  const map=[
+    {c:[0],icon:'☀️',desc:'晴天'},
+    {c:[1],icon:'🌤️',desc:'大致晴朗'},
+    {c:[2],icon:'⛅',desc:'多雲時晴'},
+    {c:[3],icon:'☁️',desc:'陰天'},
+    {c:[45,48],icon:'🌫️',desc:'有霧'},
+    {c:[51,53,55],icon:'🌦️',desc:'毛毛雨'},
+    {c:[61,63,65],icon:'🌧️',desc:'有雨'},
+    {c:[80,81,82],icon:'🌦️',desc:'陣雨'},
+    {c:[95,96,99],icon:'⛈️',desc:'雷雨'},
+  ];
+  const found=map.find(m=>m.c.includes(code))||{icon:'⛅',desc:'多雲'};
+  const uvText=uv<3?'低':uv<6?'中':uv<8?'強':uv<11?'極強':'危險';
+  const windText=wind<10?'微風':wind<20?'輕風':wind<30?'和風':'強風';
+  return {icon:found.icon,desc:found.desc,rain,uv:uvText,wind:windText+'('+Math.round(wind)+'km/h)'};
+}
+
+// 即時天氣API（Open-Meteo，免費無需金鑰）
+async function fetchWeather(){
+  try{
+    const url='https://api.open-meteo.com/v1/forecast?latitude=26.48&longitude=127.86&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max,windspeed_10m_max&timezone=Asia%2FTokyo&start_date=2026-06-20&end_date=2026-06-27';
+    const res=await fetch(url);
+    if(!res.ok) throw new Error('API error');
+    const data=await res.json();
+    const d=data.daily;
+    const notes=['抵達日穿著輕便，室內冷氣強備薄外套',
+      '戶外景點注意午後陣雨，備雨具！',
+      '浮潛好天氣！出水後記得防曬補擦',
+      '適合逛街，下午可能有陣雨',
+      '多數在室內購物，雨天也沒關係',
+      '水族館平日天晴，戶外鳳梨園記得防曬',
+      '全天室內購物，無須擔心天氣',
+      '回程日，早晨出門備雨具以防萬一'];
+    for(let i=0;i<8;i++){
+      const info=wmoToInfo(
+        d.weathercode[i],
+        d.precipitation_probability_max[i]||0,
+        d.uv_index_max[i]||0,
+        d.windspeed_10m_max[i]||0
+      );
+      WEATHER[i+1]={
+        icon:info.icon,
+        desc:info.desc+'（即時預報）',
+        high:Math.round(d.temperature_2m_max[i]),
+        low:Math.round(d.temperature_2m_min[i]),
+        rain:d.precipitation_probability_max[i]||0,
+        uv:info.uv,
+        wind:info.wind,
+        note:notes[i],
+        live:true
+      };
+    }
+    // 更新頁面顯示
+    const dc=document.getElementById('dayContent');
+    if(dc){
+      const active=document.querySelector('.tab-btn.active');
+      const n=active?parseInt(active.textContent.replace('Day ',''))  :1;
+      dc.innerHTML=renderDay(n);
+    }
+    console.log('✅ 天氣載入成功');
+  }catch(e){
+    console.log('⚠️ 天氣API失敗，使用歷史均值');
+  }
+}
+
 const NOTE='📌 建議事先預約／訂位';
 const DAYS={
   1:{date:'6/20（六）',theme:'抵達日 + PARCO CITY購物',acts:[
@@ -160,8 +245,9 @@ const DAYS={
     {t:'08:30',title:'🍳 早餐',desc:''},
     {t:'09:00-10:30',title:'🚗 前往南部',desc:'車程約1小時'},
     {t:'10:30-12:30',title:'🏯 首里城',desc:'琉球王國歷史遺跡<br>📍 那霸市首里金城町1-2<br>⏰ 08:00-18:00',cost:'大人¥400×6 + 小孩¥160×5 = ¥3,200 ≈ NT$672',note:'📌 可在 Klook / 官網 提前購票，平日人少',map:'https://www.google.com/maps/search/?api=1&query=首里城'},
-    {t:'12:30-14:00',title:'🍜 午餐 - 國際通',desc:'燒肉、海鮮、拉麵都有',cost:'¥18,000 ≈ NT$3,780'},
-    {t:'14:00-15:30',title:'🛍️ 國際通逛街',desc:'伴手禮、藥妝、紀念品',map:'https://www.google.com/maps/search/?api=1&query=國際通+那霸'},
+    {t:'12:30-13:00',title:'⛩️ 西來院達摩寺',desc:'首里城旁隱藏版景點！步行約10分鐘<br>📍 那霸市首里赤田町1丁目5-1<br>⏰ 07:00-18:00<br>🎫 免費參觀！<br><br>必看：<br>🔴 迷你千本鳥居隧道（拍照聖地）<br>🪆 各種達摩不倒翁（可撫摸祈願）<br>💰 金運神社（祈求財運）<br>❤️ 緣結堂（祈求良緣）<br>🦊 稻禾堂（可愛小狐狸神像）<br>💡 逛完約20-30分鐘',note:'💡 有沖繩FunPASS可在此兌換限定御守（至2026/9/30）！',map:'https://www.google.com/maps/search/?api=1&query=西來院達摩寺+首里'},
+    {t:'13:00-14:30',title:'🍜 午餐 - 國際通',desc:'燒肉、海鮮、拉麵都有',cost:'¥18,000 ≈ NT$3,780'},
+    {t:'14:30-16:00',title:'🛍️ 國際通逛街',desc:'伴手禮、藥妝、紀念品',map:'https://www.google.com/maps/search/?api=1&query=國際通+那霸'},
     {t:'16:00-17:00',title:'🏍️ Ricoland 沖繩店',desc:'📍 豊見城市真玉橋178-1<br>⏰ 平日11:00-21:00',map:'https://maps.app.goo.gl/ikc134N8BPbdpCQw6'},
     {t:'17:00-17:30',title:'⚾ SPORTS DEPO 豊崎店',desc:'少年棒球用品！Mizuno、SSK、ZETT常有特價<br>少年用手套、外野/內野款齊全<br>📍 豊見城市豊崎（Ricoland旁邊）',map:'https://www.google.com/maps/search/?api=1&query=SPORTS+DEPO+豊崎+沖縄'},
     {t:'17:30-20:00',title:'🛍️ ASHIBINAA Outlet',desc:'📍 豊見城市豊崎1-188<br>⏰ 10:00-20:00<br>💡 COACH、GUCCI、adidas、GAP、童裝<br>🍜 2樓有拉麵、牛排等餐廳',cost:'晚餐 ¥15,000 ≈ NT$3,150',note:'💡 退稅：購買滿¥5,000可退稅，記得帶護照',map:'https://www.google.com/maps/search/?api=1&query=ASHIBINAA+Outlet'},
@@ -230,6 +316,22 @@ const DAYS={
 
 function renderDay(n){
   const d=DAYS[n];
+  const w=WEATHER[n];
+  const weatherHTML=`
+    <div class="weather-bar">
+      <div class="weather-icon">${w.icon}</div>
+      <div class="weather-info">
+        <div class="weather-desc">${w.desc}</div>
+        <div class="weather-temp">${w.high}°<span> / ${w.low}°C</span></div>
+        <div class="weather-details">
+          <div class="weather-tag">☔ 降雨 ${w.rain}%</div>
+          <div class="weather-tag">☀️ UV ${w.uv}</div>
+          <div class="weather-tag">💨 ${w.wind}</div>
+        </div>
+        <div class="weather-note">💡 ${w.note}</div>
+        <div class="weather-ref">⚠️ 歷史均值參考，出發前請查詢實際天氣</div>
+      </div>
+    </div>`;
   let acts=d.acts.map(a=>`
     <div class="act">
       <div class="act-time">${a.t}</div>
@@ -245,6 +347,7 @@ function renderDay(n){
       <div class="day-num">${n}</div>
       <div><div class="day-date">${d.date}</div><div class="day-theme">${d.theme}</div></div>
     </div>
+    ${weatherHTML}
     ${acts}
     <div class="divider"></div>
     <div class="budget-box"><div class="budget-title">當日預算</div>${brows}</div>
